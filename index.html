@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>信息安全竞赛入门指南｜作品赛</title>
+  <style>
+    :root{
+      --bg:#0f1216; --fg:#e9edf3; --muted:#a7b0bd; --card:#151a21; --accent:#5aa2ff;
+      --link:#79b2ff; --border:#202733; --grid:rgba(255,255,255,.04); --btn-bg:#1b212b; --btn-fg:#e9edf3;
+    }
+    html,body{height:100%; margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--fg);} 
+    a{ color:var(--link); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+    .container{ max-width: 1080px; margin: 0 auto; padding: 24px; }
+    header.cover{ background: linear-gradient(180deg, rgba(90,162,255,.12), rgba(90,162,255,0) 60%); border-bottom:1px solid var(--border); }
+    .title{ font-size: 36px; margin: 0 0 2px 0; }
+    .subtitle{ font-size: 18px; color: var(--muted); margin: 0 0 4px 0; }
+    .meta{ font-size: 14px; color: var(--muted); }
+    .toc{ background: var(--card); border:1px solid var(--border); border-radius: 12px; padding:14px; margin: 12px 0; }
+    .toc h3{ margin:0 0 10px 0; font-size: 18px; }
+    .toc ul{ margin:0; padding-left:18px; columns: 2; column-gap: 24px; }
+    .toc li{ margin:6px 0; }
+    .toc a{ color: var(--fg); font-weight:600; }
+    .toc a:hover{ color: var(--link); }
+    section{ background: var(--card); border:1px solid var(--border); border-radius: 12px; padding: 22px; margin: 18px 0; }
+    section h2{ margin:0 0 10px 0; font-size: 22px; }
+    section p{ line-height: 1.7; }
+    section ul, section ol{ line-height: 1.7; }
+    .hint{ color: var(--muted); font-size: 14px; }
+    .grid{ display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media(min-width: 900px){ .grid{ grid-template-columns: 1fr 1fr; } }
+    .hero{ max-width:100%; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35); border:1px solid var(--border); margin-top:-18px; display:block; }
+    .toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+    .btn{ background:var(--btn-bg); color:var(--btn-fg); border:1px solid var(--border); padding:.6rem .9rem; border-radius:10px; cursor:pointer; font-size:14px; box-shadow:0 2px 8px rgba(0,0,0,.25); transition:background .2s, box-shadow .2s, border-color .2s, color .2s; }
+    .btn:hover{ border-color:var(--accent); box-shadow:0 6px 16px rgba(90,162,255,.25); }
+    .btn:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(90,162,255,.35); }
+    .foot{ text-align:center; color: var(--muted); font-size: 13px; padding: 18px 0 28px; }
+    code,kbd{ background:#0c1015; border:1px solid #1a202a; padding:2px 6px; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .callout{ border-left: 4px solid var(--accent); background: rgba(90,162,255,.08); padding: 10px 12px; border-radius: 8px; }
+    .two-col{ display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media(min-width: 960px){ .two-col{ grid-template-columns: 1.2fr .8fr; } }
+    .card{ background: var(--bg); border:1px dashed var(--border); border-radius: 12px; padding: 12px; transition:transform .2s, box-shadow .2s, border-color .2s; }
+    .card:hover{ transform:translateY(-2px); box-shadow:0 10px 30px rgba(90,162,255,.18); }
+    .anchor{ float:right; font-size:13px; }
+    body::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:
+        radial-gradient(1200px circle at 10% 0%, rgba(90,162,255,.12), transparent 70%),
+        radial-gradient(900px circle at 90% 10%, rgba(90,162,255,.08), transparent 70%),
+        repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 24px);
+    }
+    .matrix-bg{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+    header.cover, main.container{ position:relative; z-index:1; }
+    /* 单页导航：首页显示目录；点击目录后显示对应章节 */
+    main section{ display:none; }
+    body[data-view="home"] header.cover{ display:block; }
+    body[data-view="home"] main #目录{ display:block; }
+    body[data-view="section"] header.cover{ display:none; }
+    body[data-view="section"] main section.active{ display:block; }
+    .section-header{ display:flex; align-items:center; justify-content:space-between; }
+    .section-header h2{ position:relative; padding-left:10px; }
+    .section-header h2::before{ content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:4px; height:18px; background:linear-gradient(180deg, var(--accent), transparent); border-radius:2px; }
+    .back{ font-size:13px; color:var(--link); }
+    header.cover .container{ padding-top: 12px; padding-bottom: 12px; }
+    main.container{ padding-top: 16px; }
+    main #目录{ margin-top: 6px; }
+    #项目结构{ position:relative; }
+    #项目结构 .steps{ display:grid; grid-template-columns: 1fr; gap:14px; position:relative; }
+    #项目结构 .steps::before{ content:""; position:absolute; left:18px; top:0; bottom:0; width:2px; background:linear-gradient(180deg, var(--accent), transparent); opacity:.6; }
+    #项目结构 h3{ display:flex; align-items:center; margin:0 0 8px; font-size:18px; }
+    #项目结构 .step{ position:relative; padding-left:32px; background:rgba(21,26,33,.95); border:1px solid var(--border); border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+    #项目结构 .step::before{ content:""; position:absolute; left:8px; top:22px; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(90,162,255,.25); }
+    #项目结构 .step-num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; border:1px solid var(--border); background:#12161c; color:var(--fg); font-weight:600; margin-right:8px; }
+    #项目结构 p, #项目结构 ul{ line-height:1.8; }
+    #优势 .lead{ color: var(--muted); margin:8px 0 12px; }
+    #优势 .grid .card h4{ margin:0 0 8px; font-size:16px; }
+    #优势 .grid .card p{ line-height:1.8; }
+    .table{ width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .table thead th{ background:#12161c; color:var(--muted); font-weight:600; font-size:14px; padding:10px 12px; border-bottom:1px solid var(--border); }
+    .table tbody td{ padding:12px; border-top:1px solid var(--border); vertical-align:top; }
+    .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:#12161c; color:var(--fg); font-size:12px; margin-right:6px; }
+    .kicker{ color:var(--muted); font-size:14px; }
+    .pros li::marker{ color:#4caf50; }
+    .cons li::marker{ color:#f44336; }
+    #简介 h3{ margin:14px 0 8px; }
+    #简介 p{ line-height:1.8; }
+    #简介 ul{ line-height:1.8; }
+    #简介 .grid.faq{ gap:12px; }
+    @media(min-width: 960px){ #简介 .grid.faq{ grid-template-columns: 1fr 1fr 1fr; } }
+    #技术栈 .stack{ display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media(min-width: 960px){ #技术栈 .stack{ grid-template-columns: 1fr 1fr; } }
+    #技术栈 h3{ margin:0 0 8px; font-size:16px; }
+    #下一步{ position:relative; }
+    #下一步 .steps{ display:grid; grid-template-columns: 1fr; gap:14px; position:relative; }
+    #下一步 .steps::before{ content:""; position:absolute; left:18px; top:0; bottom:0; width:2px; background:linear-gradient(180deg, var(--accent), transparent); opacity:.6; }
+    #下一步 h3{ display:flex; align-items:center; margin:0 0 8px; font-size:18px; }
+    #下一步 .step{ position:relative; padding-left:32px; background:rgba(21,26,33,.95); border:1px solid var(--border); border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+    #下一步 .step::before{ content:""; position:absolute; left:8px; top:22px; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(90,162,255,.25); }
+    #下一步 .step-num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; border:1px solid var(--border); background:#12161c; color:var(--fg); font-weight:600; margin-right:8px; }
+    #下一步 p, #下一步 ul{ line-height:1.8; }
+  </style>
+</head>
+<body>
+  <div class="matrix-bg" style="color:var(--accent)">
+    <svg viewBox="0 0 1200 680" preserveAspectRatio="none" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="matrixGlow" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#2ff7e1" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#58ff9a" stop-opacity="0.06"/>
+        </linearGradient>
+        <filter id="soften"><feGaussianBlur stdDeviation="0.8"/></filter>
+      </defs>
+      <rect x="0" y="0" width="1200" height="680" fill="url(#matrixGlow)" filter="url(#soften)"/>
+      <rect x="0" y="-2" width="1200" height="2" fill="currentColor" opacity="0.12">
+        <animate attributeName="y" from="-2" to="682" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.06;0.25;0.06" dur="3.5s" repeatCount="indefinite"/>
+      </rect>
+      <g font-family="Consolas, Menlo, monospace" font-size="16" fill="currentColor" opacity="0.22">
+        <text x="60" y="-60">0101010101010101010101010101
+          <animate attributeName="y" from="-60" to="720" dur="7s" repeatCount="indefinite"/>
+        </text>
+        <text x="160" y="-120">0011 1010 0010 1111 0111 sec net
+          <animate attributeName="y" from="-120" to="720" dur="8.5s" repeatCount="indefinite"/>
+        </text>
+        <text x="260" y="-80">ctf 0110 1001 0110 1101 0101 0011
+          <animate attributeName="y" from="-80" to="720" dur="6.5s" repeatCount="indefinite"/>
+        </text>
+        <text x="360" y="-140">xss 01100010 01110101 111010 sqlmap
+          <animate attributeName="y" from="-140" to="720" dur="9s" repeatCount="indefinite"/>
+        </text>
+        <text x="460" y="-100">0101 1110 0010 1111 0111 1000
+          <animate attributeName="y" from="-100" to="720" dur="7.8s" repeatCount="indefinite"/>
+        </text>
+        <text x="560" y="-160">nmap 01101110 01101101 01100001 01110000
+          <animate attributeName="y" from="-160" to="720" dur="10s" repeatCount="indefinite"/>
+        </text>
+        <text x="660" y="-90">hash 0101 1010 1111 0011 0101
+          <animate attributeName="y" from="-90" to="720" dur="7.2s" repeatCount="indefinite"/>
+        </text>
+        <text x="760" y="-130">proto 01110000 01110010 01101111 01110100 01101111
+          <animate attributeName="y" from="-130" to="720" dur="8.8s" repeatCount="indefinite"/>
+        </text>
+        <text x="860" y="-110">tcp 01110100 01100011 01110000
+          <animate attributeName="y" from="-110" to="720" dur="6.8s" repeatCount="indefinite"/>
+        </text>
+        <text x="960" y="-150">dns 01100100 01101110 01110011
+          <animate attributeName="y" from="-150" to="720" dur="9.6s" repeatCount="indefinite"/>
+        </text>
+        <text x="1060" y="-70">0011 1010 0010 1111 0111 1000
+          <animate attributeName="y" from="-70" to="720" dur="7.4s" repeatCount="indefinite"/>
+        </text>
+      </g>
+    </svg>
+  </div>
+  <header class="cover">
+    <div class="container">
+      <h1 class="title">信息安全竞赛入门指南</h1>
+      <p class="subtitle">作品赛 & 赛道选择说明 —— 给新生的一份参考</p>
+      <p class="meta">Root Turing｜信息安全实验室</p>
+      <div class="toolbar">
+        <button class="btn" onclick="toggleTheme()">切换主题</button>
+        <a class="btn" href="#目录">跳转到目录</a>
+      </div>
+      <div style="margin-top:4px" class="hint">提示：这是一个很简单的介绍，给大家做一个基本的入门概括，和实际有一定的出入</div>
+      <div style="margin-top:4px" class="grid">
+        <div>
+          <p>本指南面向入门同学，帮助理解信息安全竞赛的整体图景，明确“作品赛”的定位、优势与适合人群，并给出可落地的项目方向、技术栈建议和行动清单。</p>
+        </div>
+        <div>
+          <svg class="hero" viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="网络安全黑客风主题插图">
+            <defs>
+              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#070d16"/>
+                <stop offset="100%" stop-color="#0e1621"/>
+              </linearGradient>
+              <radialGradient id="halo" cx="50%" cy="40%" r="65%">
+                <stop offset="0%" stop-color="#4eea7a" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#4eea7a" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#58ff9a"/>
+                <stop offset="100%" stop-color="#2ff7e1"/>
+              </linearGradient>
+              <filter id="neon">
+                <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#2ff7e1" flood-opacity="0.55"/>
+              </filter>
+              <pattern id="hex" width="40" height="34.64" patternUnits="userSpaceOnUse">
+                <path d="M20 0 L40 10 L40 24.64 L20 34.64 L0 24.64 L0 10 Z" fill="none" stroke="#17353a" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="1200" height="560" fill="url(#bg)"/>
+            <rect width="1200" height="560" fill="url(#halo)"/>
+            <rect width="1200" height="560" fill="url(#hex)" opacity="0.18"/>
+            <g fill="#1f3b45" stroke="#2ff7e1" stroke-width="1.5" opacity="0.8">
+              <polyline points="120,120 320,220 540,260 700,300 900,360" stroke-dasharray="6 6">
+                <animate attributeName="stroke-dashoffset" from="0" to="-120" dur="6s" repeatCount="indefinite"/>
+              </polyline>
+              <polyline points="1080,420 860,360 720,300 520,240 340,180" stroke-dasharray="6 6">
+                <animate attributeName="stroke-dashoffset" from="0" to="120" dur="6s" repeatCount="indefinite"/>
+              </polyline>
+            </g>
+            <g transform="translate(600,280)" filter="url(#neon)">
+              <path d="M0,-150 C50,-130 95,-90 110,-30 C120,10 100,60 70,90 C40,120 10,145 0,150 C-10,145 -40,120 -70,90 C-100,60 -120,10 -110,-30 C-95,-90 -50,-130 0,-150 Z" fill="#081019" stroke="url(#accent)" stroke-width="3"/>
+              <rect x="-120" y="0" width="240" height="120" rx="16" fill="#0a1219" stroke="url(#accent)" stroke-width="3"/>
+              <text x="-100" y="50" fill="#58ff9a" font-family="Consolas, Menlo, monospace" font-size="36">&gt;_<animate attributeName="opacity" values="1;0.25;1" dur="1.2s" repeatCount="indefinite"/></text>
+              <rect x="-90" y="64" width="12" height="4" rx="2" fill="#2ff7e1">
+                <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+              </rect>
+              <path d="M-80,-10 H-20 M20,-10 H80 M-60,20 H-10 M10,20 H60" stroke="#2ff7e1" stroke-width="3" opacity="0.6"/>
+            </g>
+            <g font-family="Consolas, Menlo, monospace" fill="#58ff9a" opacity="0.7" font-size="18">
+              <text x="80" y="-40">01100110 01101001 01110010 01100101 01110111 01100001 01101100 01101100</text>
+              <animate xlink:href="#code1" attributeName="y" from="-40" to="620" dur="7s" repeatCount="indefinite"/>
+            </g>
+            <g font-family="Consolas, Menlo, monospace" fill="#2ff7e1" opacity="0.6" font-size="16">
+              <text id="code1" x="980" y="-80">00111010 00101111 00101111 01110011 01100101 01100011</text>
+              <animate attributeName="y" from="-80" to="620" dur="9s" repeatCount="indefinite"/>
+            </g>
+            <g fill="#58ff9a" opacity="0.9">
+              <circle cx="220" cy="160" r="4"/>
+              <circle cx="960" cy="420" r="4"/>
+              <circle cx="780" cy="300" r="4"/>
+              <circle cx="420" cy="220" r="4"/>
+            </g>
+            <g font-family="Consolas, Menlo, monospace" filter="url(#neon)">
+              <text x="100" y="-60" fill="#58ff9a" opacity="0.8">01010100 01100101 01110011 01110100
+                <animate attributeName="y" from="-60" to="620" dur="6s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4s" repeatCount="indefinite"/>
+              </text>
+              <text x="220" y="-120" fill="#2ff7e1" opacity="0.7">00110010 00110000 00110010 00110101
+                <animate attributeName="y" from="-120" to="620" dur="7.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="5s" repeatCount="indefinite"/>
+              </text>
+              <text x="340" y="-80" fill="#58ff9a" opacity="0.75">01110011 01100101 01100011 01110101 01110010 01101001 01110100 01111001
+                <animate attributeName="y" from="-80" to="620" dur="6.8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4.5s" repeatCount="indefinite"/>
+              </text>
+              <text x="460" y="-140" fill="#2ff7e1" opacity="0.8">01001000 01000001 01000011 01001011 01000101 01010010
+                <animate attributeName="y" from="-140" to="620" dur="8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="5.5s" repeatCount="indefinite"/>
+              </text>
+              <text x="580" y="-100" fill="#58ff9a" opacity="0.85">00110001 00110001 00110010 00110000
+                <animate attributeName="y" from="-100" to="620" dur="6.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4.2s" repeatCount="indefinite"/>
+              </text>
+              <text x="700" y="-180" fill="#2ff7e1" opacity="0.75">01000011 01001110 01000110
+                <animate attributeName="y" from="-180" to="620" dur="7.8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="5.2s" repeatCount="indefinite"/>
+              </text>
+              <text x="820" y="-60" fill="#58ff9a" opacity="0.8">01101110 01100101 01110100 01110111 01101111 01110010 01101011
+                <animate attributeName="y" from="-60" to="620" dur="6.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4.2s" repeatCount="indefinite"/>
+              </text>
+              <text x="940" y="-130" fill="#2ff7e1" opacity="0.75">01110011 01100001 01100110 01100101 01110100 01111001
+                <animate attributeName="y" from="-130" to="620" dur="7.1s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4.9s" repeatCount="indefinite"/>
+              </text>
+              <text x="1060" y="-90" fill="#58ff9a" opacity="0.85">01110010 01100101 01110011 01100101 01100001 01110010 01100011 01101000
+                <animate attributeName="y" from="-90" to="620" dur="6.6s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="4.6s" repeatCount="indefinite"/>
+              </text>
+            </g>
+            <rect x="0" y="-2" width="1200" height="2" fill="#2ff7e1" opacity="0.12">
+              <animate attributeName="y" from="-2" to="562" dur="5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.06;0.22;0.06" dur="3.2s" repeatCount="indefinite"/>
+            </rect>
+            <g stroke="url(#accent)" fill="none" opacity="0.25">
+              <circle cx="600" cy="280" r="140">
+                <animate attributeName="r" values="140;220;140" dur="6s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="600" cy="280" r="180">
+                <animate attributeName="r" values="180;260;180" dur="7.5s" repeatCount="indefinite"/>
+              </circle>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="目录">
+      <h2>目录</h2>
+      <div class="toc">
+        <h3>章节导航</h3>
+        <ul>
+          <li><a href="#简介">什么是信息安全竞赛</a></li>
+          <li><a href="#赛道分类">常见赛道分类及其定位（作品赛 vs 攻防/CTF）</a></li>
+          <li><a href="#优势">参加作品赛的优势／好处</a></li>
+          <li><a href="#项目结构">典型作品项目的基本模块／组成结构</a></li>
+          <li><a href="#技术栈">基础技术栈建议（简单、可上手、不深入）</a></li>
+          <li><a href="#下一步">下一步行动建议 — 给准备入门的新生</a></li>
+          <li><a href="#附录">附录 — 推荐资源／公开数据／学习资料</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="简介">
+      <div class="section-header">
+        <h2>1. 什么是信息安全竞赛</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <div class="two-col">
+        <div>
+          <p>信息安全竞赛是为在校大学生（包含本科生、专科生）提供的一个面向“网络安全/信息安全/系统安全/安全应用开发”的比赛/实践平台。通过竞赛，同学们可以把平时学习到的安全知识、编程基础、网络基础，与实际问题、系统开发、安全工具设计等结合起来，进行创作、实践与展示。</p>
+          <p>在中国，最具代表性的全国性比赛是全国大学生信息安全竞赛（CISCN）。该竞赛由教育部及相关主管单位主办，面向全国高校学生；无论是安全专业学生，还是对安全/网络感兴趣、拥有基础编程或计算机知识的学生，都可以报名参加。</p>
+          <h3>为什么要有信息安全竞赛</h3>
+          <p>随着网络与信息系统广泛应用，社会对信息安全人才的需求不断增加——竞赛可以帮助学生接触真实或近似真实的安全问题/挑战，从而锻炼实践能力与安全意识。</p>
+          <p>信息安全不仅仅是理论或课堂知识，更需要“动手＋实践＋工程＋安全设计”。通过竞赛，你能把理论转为“会用/会做/会实现”的技能。</p>
+          <p>对大学生而言，竞赛是一个很好的锻炼机会——能强化编程、系统设计、团队协作、创新思路与实际动手能力，也能让你理解安全/网络/系统的整体结构与潜在风险。</p>
+        </div>
+        <div class="card">
+          <h3>CISCN — 全国大学生信息安全竞赛：简介</h3>
+          <p>全国大学生信息安全竞赛是国内公认的重要大学生信息安全竞赛，由教育主管部门与安全测评机构等共同组织。其宗旨包括：培养学生的创新意识与团队协作精神，提高学生网络安全技术水平、创新实践与综合设计能力。</p>
+          <ul>
+            <li>竞赛不限学生专业，只要是具有正式学籍的本科生/专科生，就可以参与。</li>
+            <li>竞赛内容覆盖广泛：从安全工具/系统/应用设计，到网络/系统/应用的安全方案开发。</li>
+            <li>官网：<a href="http://www.ciscn.cn/" target="_blank" rel="noopener">www.ciscn.cn</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>信息安全竞赛对学生/新手的意义</h3>
+      <ul>
+        <li>把理论转成实践——不只是学理论，而是把安全/网络/编程/系统知识变成“能运行/能展示/能解决问题”的作品/系统。</li>
+        <li>锻炼综合能力——包括编程、系统设计、团队协作、方案设计、测试、文档撰写与演示展示等能力。</li>
+        <li>提升安全意识与视野——通过构建/设计安全系统或分析安全问题，可以加深对“什么是安全”“为什么需要安全”“安全系统如何设计/防护”的理解。</li>
+        <li>积累项目/作品经验——就算是第一次参与，也能产出一个完整项目/作品；未来科研、课设、实习、就业都有实在成果与经验。</li>
+        <li>接触真实挑战/多样方向——竞赛能模拟或贴近真实环境/需求，让你提前适应真实世界的问题与挑战。</li>
+      </ul>
+
+      <div class="callout">常见问题</div>
+      <div class="grid faq">
+        <div class="card">
+          <h3>Q1：如果我们不确定从哪开始/没有思路，该怎么办？</h3>
+          <p>很多人一开始也会有这个情况。建议先做“头脑风暴”：组内讨论几个“看起来可能/感兴趣/容易上手 + 有安全/系统/数据/日志/网络背景”的方向。哪怕只是一个基础的日志分析、小型网络流量分类脚本、安全检测脚本/工具，也可以作为起点。然后从“最小可行版本 (MVP)”出发 —— 不求复杂功能，只求“能跑通/能输出/能展示”。这样压力更小，也更容易入门和完成。</p>
+        </div>
+        <div class="card">
+          <h3>Q2：如果我们想组队/合作，但大家都没有经验，要怎样分工/合作比较合理？</h3>
+          <ul>
+            <li>数据/日志/流量/请求/输入：获取或生成测试数据/样本，准备输入环境。</li>
+            <li>核心逻辑/脚本/检测/判断/系统实现：编写处理/分析/检测/分类代码或系统原型。</li>
+            <li>输出/日志/报告/文档/演示/说明：整理结果，撰写使用说明/文档/Demo/测试报告，准备展示材料。</li>
+          </ul>
+          <p>如果队友较少，也可以先做一个简易单人项目。关键是分工明确、逻辑清晰、功能模块简单且可运行/可展示。通过良好协作与沟通，即使没经验也能完成基础作品。</p>
+        </div>
+        <div class="card">
+          <h3>Q3：如果我们作品做不出来/失败了，是不是就没意义了？</h3>
+          <p>不。对新手来说，“失败/做不完/不完善”很常见也可接受。更重要的是你“尝试了/动手了/学习了/实践了”。失败与问题本身就是经验的一部分。能从中发现不足、积累经验、思考改进方向，这些都十分宝贵。无论结果如何，参与过程中的编码、系统设计、调试、文档与报告，都会成为未来课程、科研、实习与就业的积累。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="赛道分类">
+      <div class="section-header">
+        <h2>2. 常见赛道分类及其定位（作品赛 vs 攻防/CTF）</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+
+      <p class="kicker">不同赛道适合不同背景、兴趣与目标。以下是两类赛道的简介与对比。</p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>赛道/类型</th>类型</th>
+            <th>主要形式/输出内容</th>
+            <th>更适合的人/目标</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag">作品赛</span>系统/工具/应用＋开发＋提交＋演示</td>
+            <td>参赛者自主设计/开发安全相关的系统/工具/应用/方案；最终提交作品＋文档＋Demo/演示/报告等。</td>
+            <td>对编程/系统/工具开发感兴趣；希望做“完整、可运行/可展示”的项目；擅长从构思→实现→测试→展示的同学。</td>
+          </tr>
+          <tr>
+            <td><span class="tag">攻防/CTF</span>Challenge-style</td>
+            <td>主办方提供 Web/二进制/逆向/安全分析/密码学等题目；参赛者通过分析/攻击/解题/漏洞利用/渗透等方式拿到 flag/完成任务并计分。</td>
+            <td>喜爱破解/攻防/漏洞利用/逆向/安全研究；愿意快速学习多种安全知识与工具，适应高强度解题节奏的人。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">说明：两种赛道没有高低之分，选择应根据兴趣、基础、时间与目标来决定。</div>
+
+      <h3>为什么作品赛更适合作为新生/初学者的入口</h3>
+      <ul>
+        <li>输出作品，成果可见可展示：即使功能基础，也能形成完整“作品/项目成果”。</li>
+        <li>锻炼综合能力与项目实践：涵盖系统设计、模块划分、调试、测试、文档与演示准备。</li>
+        <li>门槛相对友好／可控：更贴近系统开发与安全应用，适合对安全＋开发感兴趣的新生。</li>
+        <li>适合团队与分工协作：2–4 人小队可按数据/逻辑/文档/演示等分工推进。</li>
+        <li>作品可持续与可扩展：可持续优化与扩展，沉淀为作品集/简历/项目经历。</li>
+        <li>较少压力，时间安排灵活：不必在短时高强度解题，更适合课业繁忙或刚入门同学。</li>
+      </ul>
+
+      <h3>关于攻防/CTF赛道——优势与挑战</h3>
+      <div class="two-col">
+        <div>
+          <h4>优势</h4>
+          <ul class="pros">
+            <li>覆盖安全多个方向：Web、安全分析、二进制、逆向、密码学等题型广泛。</li>
+            <li>快速提升技术与安全思维：锻炼漏洞分析、攻击/防御能力与底层理解。</li>
+          </ul>
+        </div>
+        <div>
+          <h4>挑战</h4>
+          <ul class="cons">
+            <li>入门门槛较高：涉及操作系统、代码漏洞、逆向、利用、加密/解密等。</li>
+            <li>时间与精力消耗大：节奏快、竞争激烈，需要持续练习与投入。</li>
+            <li>工程/系统开发能力锻炼较少：更偏向解题技巧与速度而非完整系统实现。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>如何根据自身情况选择合适赛道</h3>
+      <div class="two-col">
+        <div class="card">
+          <h4>倾向作品赛：</h4>
+          <ul>
+            <li>对编程/系统开发/工具制作/软件实现感兴趣。</li>
+            <li>希望产出“能运行/可展示”的项目，而不仅是解题。</li>
+            <li>希望锻炼系统思考、项目设计、团队协作与工程实现。</li>
+            <li>时间/基础/经验有限，期望门槛适中与可控。</li>
+            <li>希望积累可用于作品集/简历/课设/科研的项目。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>适合攻防/CTF：</h4>
+          <ul>
+            <li>对底层安全/漏洞/攻防/逆向/安全分析/渗透有兴趣。</li>
+            <li>喜欢解题/挑战/攻破的节奏与方式。</li>
+            <li>具备一定基础（编程、网络、安全）或愿意投入大量时间学习。</li>
+            <li>希望快速了解多个安全子领域并提升漏洞分析与攻防能力。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>总结（面向新生/刚入门）</h3>
+      <p>如果你刚接触信息安全并具备基础编程或网络知识，作品赛通常是更适合的入口：门槛适中、产出清晰、可锻炼系统思考与工程能力。攻防/CTF更适合对底层安全与漏洞分析有兴趣、具备一定基础并愿意投入较多时间的同学。无论选择哪条路，都应基于兴趣、基础、时间与目标进行评估。</p>
+    </section>
+
+    <section id="优势">
+      <div class="section-header">
+        <h2>3. 参加作品赛的优势/好处</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <p class="lead">参加全国大学生信息安全竞赛中的作品赛，对于刚入学或刚接触信息安全的新生/本科生来说，有不少切实的好处——这不仅仅是一次竞赛，更是一次实践、成长与积累的机会。以下是主要优势：</p>
+
+      <div class="grid">
+        <div class="card">
+          <h4>1. 将理论知识转化为实践能力 — 真正“做安全 + 做系统或工具”</h4>
+          <p>平时课堂上的网络基础、安全原理、编程基础，常常停留在“理论/理解”层面。通过作品赛，你有机会将这些知识融合起来：设计并编写一个安全相关的系统、工具或应用，把抽象的概念变成“能运行/能展示/能使用”的实际作品。</p>
+          <p>这种实践经验远比单纯听课或做理论题更有意义——它教会你如何思考、如何动手、如何解决实际问题，而不是仅仅停留在概念上。</p>
+        </div>
+        <div class="card">
+          <h4>2. 综合能力训练 — 不只是写代码，还有项目设计、团队协作、文档与演示</h4>
+          <p>一个完整的作品赛项目，通常包含系统或工具的设计、模块划分、数据/输入处理、逻辑/功能实现、测试调试、文档编写、效果展示或 Demo 制作等环节。</p>
+          <p>参与这样的项目，不仅能锻炼编程能力，还能培养系统设计、结构化思考、团队协作、项目管理、文档撰写与沟通表达等综合能力，这对课程作业、科研、实习与就业都有帮助。</p>
+        </div>
+        <div class="card">
+          <h4>3. 有“成果产出” — 可以复用、可以展示、对简历/作品集有加分</h4>
+          <p>完成的作品——即便只是基础版本——就是你的成果。它可以成为作品集或简历的一部分，也可以在未来继续扩展和改进。</p>
+          <p>相比课堂作业或零散练习，一个完整、安全相关、可运行、配有说明与 Demo 的作品更具说服力，也更能体现你的能力与实践经验。</p>
+        </div>
+        <div class="card">
+          <h4>4. 团队合作与分工协作 — 对新手特别友好</h4>
+          <p>作品赛通常允许小队参赛（如 2–4 人）。可以按特长分工：有人负责数据准备/输入/日志/流量处理，有人负责逻辑实现/脚本/功能，还有人负责文档/演示/报告/整合。</p>
+          <p>协作能让每个人都参与，也提升整体作品质量；通过合作，即便基础有限，也能在协作中学习与成长。</p>
+        </div>
+        <div class="card">
+          <h4>5. 起点友好、灵活性高 — 适合刚入门或课业繁忙的本科生</h4>
+          <p>相较需要较强安全基础、漏洞分析、逆向攻击、渗透经验的赛道，作品赛起点更低，更易上手。可以从简单功能、基础逻辑与基础编程开始。</p>
+          <p>可根据课业灵活安排时间——周末、假期、课余均可逐步完善项目，适合本科生和第一次接触安全/编程/系统开发的新生。</p>
+        </div>
+        <div class="card">
+          <h4>6. 早期接触真实安全或系统问题 — 培养安全意识与实际问题解决能力</h4>
+          <p>作品赛鼓励面向真实需求与安全问题，如流量监测、日志分析、安全工具、系统防护、隐私保护、安全审计等。比课堂更早、更真实地接触系统的不稳定性与潜在风险。</p>
+          <p>在项目中，你不仅学习编程与系统知识，还能提升对安全/网络/系统架构、潜在威胁、防护机制与安全设计的理解，为后续学习、科研与工程实践打下基础。</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>总结：</strong>如果你刚入门，对信息安全还陌生但对编程或网络/系统有兴趣，作品赛通常是更适合的入口：门槛友好、灵活可控、收益明确，并能为科研、实习、就业与项目经验积累提供实用价值。通过作品赛，你不仅能把课堂知识“用起来”，还能锻炼实践、思考、协作、设计与展示等综合能力，打造属于你的安全作品。
+      </div>
+    </section>
+
+    <section id="作品赛定义">
+      <div class="section-header">
+        <h2>4. 作品赛 — 定义、目标与适合人群</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <ul>
+        <li><strong>定义：</strong>设计并实现安全相关的系统/工具/应用/方案，通过作品＋文档＋演示参与评审。</li>
+        <li><strong>目标：</strong>把安全/网络/系统知识转化为可运行、可演示、有应用价值的作品；培养实践能力、系统思维、创新与协作。</li>
+        <li><strong>适合人群：</strong>对编程与系统开发感兴趣、愿意动手；期望产出“完整作品／作品集”；希望以工程与实践为主线。</li>
+      </ul>
+    </section>
+
+    <section id="方向建议">
+      <div class="section-header">
+        <h2>5. 适合新生/本科生的作品赛项目方向建议</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <ul>
+        <li>流量/日志/网络数据分析与异常检测：基于公开或模拟数据，进行处理、分类／检测与结果分析。</li>
+        <li>基础入侵检测／日志监控／安全监控系统：对日志／流量／请求进行监控、过滤与告警。</li>
+        <li>URL/请求/日志安全事件分析工具/脚本：偏脚本化，适合对 Web/日志安全感兴趣的同学。</li>
+        <li>安全结果可视化仪表盘：把检测/分析结果以图表/报告展示，便于理解与沟通。</li>
+        <li>轻量 Web/API 请求检测与基础安全扫描工具：面向接口安全与基础检查。</li>
+      </ul>
+      <p class="hint">建议选择“数据易获取＋实现相对简单＋输出展示直观”的方向，快速启动并完成基础版本。</p>
+    </section>
+
+    <section id="项目结构">
+      <div class="section-header">
+        <h2>4. 一个典型作品项目的基本模块/组成结构</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <p class="kicker">给初学者的模块化实现指南：清晰结构，便于协作与评审。</p>
+      <div class="steps">
+        <div class="card step">
+          <h3><span class="step-num">1</span>项目背景和目标说明</h3>
+          <p>项目背景与动机：说明为什么要做这个系统/工具/应用，它解决哪些安全或网络相关的需求。如日志分析、流量监控、请求安全检测、异常行为分析等。</p>
+          <p>目标与功能规划：明确作品要实现的核心流程。基础版本可设为“输入 → 分析/检测 → 输出报告/警告”，便于分工与评审理解。</p>
+          <p class="hint">这是“为什么做”和“要做什么”的描述，是项目设计与展示的基础。</p>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">2</span>输入/数据/运行环境说明</h3>
+          <ul>
+            <li><strong>数据或输入说明：</strong>说明项目需要的数据类型与格式，如日志文件、网络流量记录、请求记录、模拟数据、抓包数据、系统日志等；同时给出数据来源（公开数据、测试数据、自行模拟）与样本规模。</li>
+            <li><strong>运行环境与依赖说明：</strong>说明运行环境（本地电脑、虚拟机、容器）、所需软件/库、是否需要网络或可离线运行，保证他人可按说明复现。</li>
+            <li><strong>数据合法性与安全性注意：</strong>使用真实数据需注意隐私与合法性；不便获取真实数据时，建议使用公开或模拟数据，更安全且适合入门项目。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">3</span>核心逻辑/功能实现模块</h3>
+          <ul>
+            <li><strong>核心逻辑或处理机制：</strong>例如对日志或流量进行过滤、分类、异常检测、安全检测、统计分析；也可采用规则判断、关键词检测或简单分类算法。重点是简单、清晰、可实现且有实际意义。</li>
+            <li><strong>模块化设计：</strong>将系统拆分为“数据输入/预处理/分析或检测/输出/报警或报告”等子模块，结构清晰、便于多人协作。</li>
+            <li><strong>容错与稳定性：</strong>考虑不规范或异常输入时的处理、日志记录、错误处理与异常捕获，使系统更稳健。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">4</span>输出/展示/报告/演示方式</h3>
+          <ul>
+            <li><strong>输出设计：</strong>输出可为日志文件、文本报告、检测或分类结果、警告提示、统计结果、报告文档、命令行输出、网页界面、图表或截图等，确保清晰易懂。</li>
+            <li><strong>演示准备（Demo）：</strong>准备演示流程：输入测试或模拟数据 → 运行系统 → 得到检测/分析结果或报警/报告 → 展示结果。</li>
+            <li><strong>使用说明与操作指南：</strong>编写安装与运行说明、输入准备、结果查看、注意事项与限制，保证他人能复现与使用。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">5</span>文档与说明材料</h3>
+          <ul>
+            <li><strong>设计说明文档：</strong>介绍整体结构、模块组成、设计思路、核心逻辑与功能说明。</li>
+            <li><strong>使用说明书/用户指南：</strong>安装、运行、输入准备、结果查看与注意事项。</li>
+            <li><strong>测试报告或测试说明：</strong>说明测试方法、所用数据、不同场景下表现与规避的潜在问题。</li>
+            <li><strong>项目总结与未来改进：</strong>已实现的功能、不足之处与可扩展方向。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">6</span>测试/验证/稳定性/可复现性</h3>
+          <ul>
+            <li><strong>测试用例或测试数据：</strong>覆盖正常、边界与异常情况，确保系统在多种场景下行为正确。</li>
+            <li><strong>验证输出与预期：</strong>检查分类/检测结果与警告是否合理，日志是否完整，系统在各类输入下是否稳定运行。</li>
+            <li><strong>保证可复现：</strong>确保他人按说明在相同或类似环境中可运行并得到相似结果。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">7</span>（可选）界面/可视化/用户体验与交互设计</h3>
+          <ul>
+            <li>简单网页、命令行或图形界面，用于输入数据、启动检测/分析、查看结果/报警/报告。</li>
+            <li>可视化图表、安全报告页面、日志浏览界面、统计图/趋势图/报警提示界面等。</li>
+            <li>自动化脚本或工具：批量处理、定期检测、导出报告等，提高实用性与展示效果。</li>
+          </ul>
+          <p>该类功能非必需，但能显著提升可用性、用户体验与展示效果，更容易让评审或他人理解与接受。</p>
+        </div>
+      </div>
+      <div class="callout">只要基础版本（MVP）覆盖以上要素，就已构成一个合格作品。</div>
+    </section>
+
+    <section id="技术栈">
+      <div class="section-header">
+        <h2>5. 基础技术栈建议（简单、易上手、适合入门）</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <p>对于刚接触信息安全、编程或系统开发的新同学，建议选择“门槛低、依赖少、易上手”的技术栈，先完成一个小而完整的第一版作品。</p>
+      <div class="stack">
+        <div class="card">
+          <h3>🔧 推荐语言：Python</h3>
+          <p>Python 语法简洁、上手友好，广泛用于脚本编写、日志处理、网络请求与数据分析。高校课程与安全实践中使用非常普遍，适合作为入门语言。</p>
+          <p>在安全相关项目中，使用 Python 可快速实现脚本、工具与原型系统，环境配置简单，适合作品赛的起步项目。</p>
+        </div>
+
+        <div class="card">
+          <h3>📚 常用库/工具（面向入门安全/系统/流量/日志）</h3>
+          <ul>
+            <li>网络/数据包处理：例如 Scapy，用于构造、捕获与解析网络数据包，适合流量分析与基础探测。</li>
+            <li>脚本与日志/文本处理：Python 标准库即可完成字符串、文件与日志的读取与处理，门槛低、可快速上手。</li>
+            <li>轻量 Web/脚本/服务：用 Python 搭建简易后台或接口，承载处理逻辑与基础安全检测，无需复杂前端或部署。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🖥 环境 & 运行方式（本地/轻量/易用优先）</h3>
+          <ul>
+            <li>使用个人电脑或虚拟机/容器进行开发与测试，不必搭建复杂服务器。</li>
+            <li>避免一开始追求高负载/大流量/高并发，先做“小而完整”的版本。</li>
+            <li>保证依赖简单、易安装与易维护，方便复现与评审测试。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🧪 为什么这套基础栈适合新手/本科阶段</h3>
+          <ul>
+            <li>入门门槛低：语法简单，学习曲线平缓。</li>
+            <li>灵活性高：日志分析、流量分类、检测工具与轻量服务均可实现。</li>
+            <li>可快速看到成果：依赖少、调试方便，能尽快完成“输入 → 处理 → 输出/结果”。</li>
+            <li>便于团队协作：统一语言与工具，分工清晰，集成成本低。</li>
+            <li>适合课余启动：无需复杂框架或深奥知识，边做边学即可。</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>🎯 小建议给刚入门的你</h3>
+          <ul>
+            <li>先写一个小脚本：处理日志、统计请求或分析流量，熟悉流程并积累信心。</li>
+            <li>用 Python + 简单库先实现最基础版本，不追求复杂界面与逻辑，保证“能跑通、能看到结果”。</li>
+            <li>若是多人项目，按数据/输入、核心逻辑/脚本、输出/报告/演示分工协作，提高效率。</li>
+            <li>重视稳定运行、可复现与清晰说明/文档，让作品更易理解、展示与评审。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="常见问题">
+      <div class="section-header">
+        <h2>8. 新手入门可能遇到的问题 & 解决建议</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <div class="two-col">
+        <div>
+          <ul>
+            <li><strong>问题 A：</strong>范围过大／模糊 → <strong>建议：</strong>从 MVP 起步，功能少、范围小，先跑通。</li>
+            <li><strong>问题 B：</strong>数据难获取 → <strong>建议：</strong>优先公开／模拟／自制样例数据，先做演示版。</li>
+            <li><strong>问题 C：</strong>基础薄弱 → <strong>建议：</strong>从文本／日志／简单请求入手，不必处理复杂协议。</li>
+            <li><strong>问题 D：</strong>忽视文档 → <strong>建议：</strong>从 Day1 开始写 README 与使用说明。</li>
+            <li><strong>问题 E：</strong>结构混乱 → <strong>建议：</strong>模块化设计，先核心、后扩展。</li>
+            <li><strong>问题 F：</strong>不会展示 → <strong>建议：</strong>确定一种简单可靠的输出与演示方式（日志／报告／截图）。</li>
+            <li><strong>问题 G：</strong>协作不畅 → <strong>建议：</strong>预先明确分工与节奏，统一版本管理与任务规划。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="hint">导师建议：</p>
+          <ul>
+            <li>每周一次里程碑检查：数据、核心逻辑、输出、文档各一条。</li>
+            <li>演示优先：任何迭代都以“能演示”为目标。</li>
+            <li>记录问题与解法，形成 FAQ，减少重复踩坑。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="决策建议">
+      <div class="section-header">
+        <h2>9. 如何根据自身情况选择项目/团队/方向</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <ul>
+        <li><strong>兴趣与基础：</strong>是否喜欢开发与系统设计？是否愿意学习基础网络/数据处理？</li>
+        <li><strong>数据与输入：</strong>是否有公开数据或可生成模拟数据？</li>
+        <li><strong>团队资源：</strong>是否有人数与分工支持（数据/处理/逻辑/文档/测试）？</li>
+        <li><strong>目标与期望：</strong>做基础可运行作品还是中大型系统？与时间与能力匹配。</li>
+        <li><strong>时间投入：</strong>课业繁忙，是否能保证稳定推进与按期里程碑？</li>
+      </ul>
+      <div class="callout">通过以上维度的理性分析，选择最适合的方向与题目，避免盲目追求“复杂/高大上”。</div>
+    </section>
+
+    <section id="下一步">
+      <div class="section-header">
+        <h2>6. 下一步行动建议（给准备入门的新生）</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <p class="kicker">把想法落地为作品：按步骤推进，稳妥不迷茫。</p>
+      <div class="steps">
+        <div class="card step">
+          <h3><span class="step-num">1</span>头脑风暴：想 2–3 个方向</h3>
+          <p>召集对安全/编程/网络系统感兴趣的同学/朋友一起讨论可实现的题目。</p>
+          <ul>
+            <li>优先选择简单/可实现/有意义的方向，如日志分析、网络请求安全检测、流量/请求监控、安全脚本、小型工具/服务、模拟检测系统。</li>
+            <li>为每个方向初步梳理：输入/数据/目标是什么？系统/工具做什么？最终输出/结果是什么？</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">2</span>评估可行性 — 数据/环境/资源</h3>
+          <ul>
+            <li>判断数据/输入是否可获得或可模拟（日志、流量、请求记录等）；没有真实数据可自制测试数据。</li>
+            <li>评估时间/能力：是否能用基础技术栈实现“输入→处理→输出/结果”。</li>
+            <li>排除过于复杂、权限要求高或对安全/系统基础要求过高的方向，优先“简单+可控”。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">3</span>结构设计与分工 — 模块/任务</h3>
+          <ul>
+            <li>按输入/预处理/检测/分析/输出/报告/展示/文档拆分模块。</li>
+            <li>明确分工：数据/输入/样本、逻辑/代码/处理、输出/报告/演示/文档。</li>
+            <li>统一输出形式：日志、报告、分析结果、Demo、使用说明。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">4</span>实现 MVP — 先跑通基础流程</h3>
+          <p>先实现最核心的流程，确保能运行并有结果。</p>
+          <ul>
+            <li>读取日志/请求/模拟数据 → 基础检测/分析 → 输出结果/报告/日志/文件。</li>
+            <li>暂不追求复杂界面或全面功能，优先“能跑、能出结果、可演示”。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">5</span>文档与使用说明 — 可复现/可理解</h3>
+          <ul>
+            <li>准备简明的使用说明：如何运行、如何输入数据、如何查看结果、注意事项/已知限制。</li>
+            <li>保存测试案例与样例输入/输出，保证他人和自己可复现。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">6</span>测试/验证/演示 — 稳定性与效果</h3>
+          <ul>
+            <li>准备正常/异常/边界/极端等多种测试数据，检查系统处理与输出是否合理。</li>
+            <li>关注稳定性与一致性；邀请同学/老师试运行，依据反馈改进。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">7</span>扩展/优化 — 功能与体验提升</h3>
+          <ul>
+            <li>在基础版本稳定后再考虑可视化、图表/统计、报告导出、自动化、批量处理、交互、简单网页接口等。</li>
+            <li>进行性能、体验与可扩展性优化；为提交材料做整理。</li>
+          </ul>
+        </div>
+
+        <div class="card step">
+          <h3><span class="step-num">8</span>学习与积累 — 总结/反思/提升</h3>
+          <ul>
+            <li>记录问题、解决思路、不足与改进方向，持续迭代。</li>
+            <li>关注安全/网络/系统基础与新技术，阅读资料/文档/教程/社区优秀项目，长期提升。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="附录">
+      <div class="section-header">
+        <h2>7. 附录 — 推荐资源/公开数据/学习资料</h2>
+        <a class="back" href="#目录">返回目录 ↑</a>
+      </div>
+      <p class="kicker">推荐给新生/入门者的公开资源网站/平台/社区/视频</p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>资源名称/平台/渠道</th>
+            <th>类型 & 内容</th>
+            <th>适合初学者/作品赛入门理由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GitHub</td>
+            <td>全球最大开源代码托管平台，包含项目/脚本/工具/示例源码</td>
+            <td>可浏览安全/网络/日志/工具项目，查看源码/结构，fork 改造为作品基础</td>
+          </tr>
+          <tr>
+            <td>Gitee</td>
+            <td>国内开源代码托管平台</td>
+            <td>访问更友好，便于团队协作与共享代码/项目/文档</td>
+          </tr>
+          <tr>
+            <td>CSDN</td>
+            <td>中文技术博客与社区，涵盖编程/网络/安全/日志处理/工具开发</td>
+            <td>语言环境更友好，适合查基础与入门教程、项目经验</td>
+          </tr>
+          <tr>
+            <td>CTF-Wiki</td>
+            <td>安全/CTF/网络安全知识的公开 Wiki</td>
+            <td>基础概念与原理清楚，虽偏攻防但对安全基础理解很有帮助</td>
+          </tr>
+          <tr>
+            <td>YouTube 网络安全教学频道</td>
+            <td>视频教程，直观演示操作/过程/工具使用</td>
+            <td>适合“看—学—试着做”，部分频道专为初学者设计</td>
+          </tr>
+          <tr>
+            <td>国内视频社区/视频网站（如 B站）</td>
+            <td>中文视频教程、国内讲解者、贴近本地网络环境与语言习惯</td>
+            <td>对国内新生更友好，更易理解与跟进</td>
+          </tr>
+          <tr>
+            <td>开源/公开的安全项目库（GitHub/Gitee）</td>
+            <td>脚本/工具/小系统：安全/日志/请求处理/网络分析等</td>
+            <td>直接读/运行/修改/理解，作为作品赛项目的练手与起点</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:14px">一些值得关注的国外视频/频道/资源</h3>
+      <div class="grid">
+        <div class="card">
+          <h4>John Hammond</h4>
+          <p>内容涵盖安全实践与 CTF 题目讲解，适合了解实战与安全基础。</p>
+        </div>
+        <div class="card">
+          <h4>LiveOverflow</h4>
+          <p>偏向攻防/漏洞/逆向/安全思维，讲解通俗有趣，适合基础与思维训练。</p>
+        </div>
+        <div class="card">
+          <h4>David Bombal</h4>
+          <p>聚焦网络基础/协议/网络安全，帮助理解网络与安全的关系。</p>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:12px">
+        <strong>对新生/入门者的使用建议：</strong>
+        <ul>
+          <li>起步组合：GitHub + CSDN + 中文教程 + B站/国内视频网站，语言与理解门槛低。</li>
+          <li>读与改：选择简单的日志分析/数据处理/小工具项目，先运行理解，再改动功能/输出/逻辑。</li>
+          <li>中英文搭配：中文资源打基础，逐步尝试英文视频/项目，提升视野与理解深度。</li>
+          <li>练手路径：读/看/做/写文档 → 运行/实验 → 改写/扩展 → 整理说明与演示。</li>
+          <li>作品思路：不必从零做大系统，合理改/组合现有脚本/工具/项目即可形成可运行/可展示作品。</li>
+        </ul>
+      </div>
+
+      <p class="hint">提示：获取信息的渠道也是比较重要的，不管是国内的还是国外的最好都要能略知一二。</p>
+    </section>
+
+    <section>
+      <h2>选择作品赛的好处（摘要）</h2>
+      <ul>
+        <li>快速积累可展示的成果与作品集。</li>
+        <li>锻炼工程实践与系统设计能力。</li>
+        <li>更贴近真实问题与应用场景。</li>
+        <li>团队协作与项目管理能力同步提升。</li>
+      </ul>
+    </section>
+
+    <div class="foot"> Root Turing｜信息安全实验室｜本页面为入门介绍，内容仅供参考</div>
+  </main>
+
+  <script>
+    // 主题切换（深浅色）
+    let dark = true;
+    function toggleTheme(){
+      dark = !dark;
+      if(dark){
+        document.documentElement.style.setProperty('--bg','#0f1216');
+        document.documentElement.style.setProperty('--fg','#e9edf3');
+        document.documentElement.style.setProperty('--muted','#a7b0bd');
+        document.documentElement.style.setProperty('--card','#151a21');
+        document.documentElement.style.setProperty('--accent','#5aa2ff');
+        document.documentElement.style.setProperty('--link','#79b2ff');
+        document.documentElement.style.setProperty('--border','#202733');
+        document.documentElement.style.setProperty('--btn-bg','#1b212b');
+        document.documentElement.style.setProperty('--btn-fg','#e9edf3');
+      } else {
+        document.documentElement.style.setProperty('--bg','#f6f7fb');
+        document.documentElement.style.setProperty('--fg','#0c1118');
+        document.documentElement.style.setProperty('--muted','#57606a');
+        document.documentElement.style.setProperty('--card','#ffffff');
+        document.documentElement.style.setProperty('--accent','#2f81f7');
+        document.documentElement.style.setProperty('--link','#1f6feb');
+        document.documentElement.style.setProperty('--border','#e6e8eb');
+        document.documentElement.style.setProperty('--btn-bg','#17407a');
+        document.documentElement.style.setProperty('--btn-fg','#ffffff');
+      }
+    }
+
+    // 单页导航：首页显示目录，点击目录进入章节独立页
+    const sections = Array.from(document.querySelectorAll('main section'));
+    function render(){
+      const hash = location.hash || '#目录';
+      const id = decodeURIComponent(hash).replace('#','');
+      if(id === '目录' || id === 'home' || id === ''){
+        document.body.setAttribute('data-view','home');
+        sections.forEach(s=> s.classList.remove('active'));
+        return;
+      }
+      const target = document.getElementById(id);
+      if(!target){
+        document.body.setAttribute('data-view','home');
+        sections.forEach(s=> s.classList.remove('active'));
+        return;
+      }
+      document.body.setAttribute('data-view','section');
+      sections.forEach(s=> s.classList.toggle('active', s === target));
+    }
+    window.addEventListener('hashchange', render);
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+  
+</body>
+</html>
